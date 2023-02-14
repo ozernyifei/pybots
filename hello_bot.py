@@ -1,56 +1,55 @@
-
 import telebot
 import datetime
-from telebot.types import ReplyKeyboardMarkup, KeyboardButton
 
+# создаем объект бота
 bot = telebot.TeleBot('6168613359:AAGBE0EBuTHcA57OSK3Y3VOVQBzsdZ0Mh6s')
 
+# первое меню с двумя кнопками
+main_menu_markup = telebot.types.ReplyKeyboardMarkup(row_width=2)
+hello_button = telebot.types.KeyboardButton('Приветствие')
+weekday_button = telebot.types.KeyboardButton('День недели')
+main_menu_markup.add(hello_button, weekday_button)
+
+# второе меню с тремя кнопками и кнопкой "назад"
+second_menu_markup = telebot.types.ReplyKeyboardMarkup(row_width=1)
+devops_button = telebot.types.KeyboardButton('Девопс')
+album_button = telebot.types.KeyboardButton('Альбом')
+drink_button = telebot.types.KeyboardButton('Пить')
+back_button = telebot.types.KeyboardButton('Назад')
+second_menu_markup.add(devops_button, album_button, drink_button, back_button)
+
+# обработчик команды /start
 @bot.message_handler(commands=['start'])
-def send_welcome(message):
-    markup = ReplyKeyboardMarkup(resize_keyboard=True)
-    item1 = KeyboardButton("Приветствие")
-    item2 = KeyboardButton("День недели")
-    item3 = KeyboardButton("Когда?")
-    markup.add(item1, item2, item3)
-    bot.reply_to(message, "Привет! Я телеграм-бот.", reply_markup=markup)
+def start_message(message):
+    bot.send_message(message.chat.id, 'Привет! Это тестовый бот. Нажми на одну из кнопок, чтобы продолжить.', reply_markup=main_menu_markup)
 
-# Обработчик события нажатия на кнопку "Приветствие"
-@bot.message_handler(func=lambda message: message.text == "Приветствие")
-def handle_greeting(message):
-    bot.send_message(message.chat.id, "Привет! Как дела?")
-@bot.message_handler(func=lambda message: message.text == "Когда?")
-def handle_additional(message):
-    markup = ReplyKeyboardMarkup(resize_keyboard=True)
-    item1 = KeyboardButton("Девопс")
-    item2 = KeyboardButton("Альбом")
-    item3 = KeyboardButton("Пить")
-    markup.add(item1, item2, item3)
-    bot.send_message(message.chat.id, "Что когда?", reply_markup=markup)
+# обработчик кнопки "приветствие"
+@bot.message_handler(func=lambda message: message.text == 'Приветствие')
+def hello_message(message):
+    bot.send_message(message.chat.id, 'Привет, я тестовый бот!', reply_markup=main_menu_markup)
 
-# Обработчик события нажатия на кнопку "Девопс"
-@bot.message_handler(func=lambda message: message.text == "Девопс")
-def handle_devops(message):
-    bot.send_message(message.chat.id, "Скоро!")
+# обработчик кнопки "день недели"
+@bot.message_handler(func=lambda message: message.text == 'День недели')
+def weekday_message(message):
+    weekday = datetime.datetime.today().strftime('%A')
+    bot.send_message(message.chat.id, f'Сегодня {weekday}.', reply_markup=main_menu_markup)
 
-# Обработчик события нажатия на кнопку "Альбом"
-@bot.message_handler(func=lambda message: message.text == "Альбом")
-def handle_album(message):
-    bot.send_message(message.chat.id, "Иди нахуй")
+# обработчик кнопки "девопс"
+@bot.message_handler(func=lambda message: message.text == 'Девопс')
+def devops_message(message):
+    bot.send_message(message.chat.id, 'Скоро...', reply_markup=second_menu_markup)
 
-# Обработчик события нажатия на кнопку "Пить"
-@bot.message_handler(func=lambda message: message.text == "Пить")
-def handle_drink(message):
-    bot.send_message(message.chat.id, "Позови, пойдём!")
+# обработчик кнопки "альбом"
+@bot.message_handler(func=lambda message: message.text == 'Альбом')
+def album_message(message):
+    bot.send_message(message.chat.id, 'Скоро...', reply_markup=second_menu_markup)
 
-# Обработчик события нажатия на кнопку "День недели"
-@bot.message_handler(func=lambda message: message.text == "День недели")
-def handle_day_of_week(message):
-    # здесь можно добавить ваш код для получения дня недели
-    now = datetime.datetime.now()  # Получаем текущее время
-    day = now.strftime("%A")  # Получаем текущий день недели
-    date = now.strftime("%d.%m.%Y")  # Получаем текущую дату
-    time = now.strftime("%H:%M:%S")  # Получаем текущее время
-    reply = f"Сегодня {day}, {date}, {time} по Москве."
-    bot.send_message(message.chat.id, reply)
+# обработчик кнопки "пить"
+@bot.message_handler(func=lambda message: message.text == 'Пить')
+def drink_message(message):
+    bot.send_message(message.chat.id, 'Скоро...', reply_markup=second_menu_markup)
 
-bot.polling(none_stop=True)
+# обработчик кнопки "назад"
+@bot.message_handler(func=lambda message: message.text == 'Назад')
+def back_message(message):
+    bot.send_message(message.chat.id, 'Выбери, что ты хочешь сделать.', reply_markup=main_menu_markup)
