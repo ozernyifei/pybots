@@ -5,7 +5,7 @@ import datetime
 bot = telebot.TeleBot('6168613359:AAGBE0EBuTHcA57OSK3Y3VOVQBzsdZ0Mh6s')
 
 # первое меню с тремя кнопками
-main_menu_markup = telebot.types.ReplyKeyboardMarkup(row_width=1)
+main_menu_markup = telebot.types.ReplyKeyboardMarkup(resize_keyboard=True)
 hello_button = telebot.types.KeyboardButton('Приветствие')
 weekday_button = telebot.types.KeyboardButton('День недели')
 when_button = telebot.types.KeyboardButton('Когда?')
@@ -48,14 +48,17 @@ def devops_message(message):
 # обработчик кнопки "альбом"
 @bot.message_handler(func=lambda message: message.text == 'Альбом')
 def album_message(message):
-    bot.send_message(message.chat.id, 'Скоро...', reply_markup=second_menu_markup)
+    bot.send_message(message.chat.id, 'Иди нахуй', reply_markup=second_menu_markup)
 
 # обработчик кнопки "пить"
 @bot.message_handler(func=lambda message: message.text == 'Пить')
 def drink_message(message):
-    bot.send_message(message.chat.id, 'Скоро...', reply_markup=second_menu_markup)
+    bot.send_message(message.chat.id, 'Зови, пойдем!', reply_markup=second_menu_markup)
 
 # обработчик кнопки "назад"
 @bot.message_handler(func=lambda message: message.text == 'Назад')
 def back_message(message):
     bot.send_message(message.chat.id, 'Выбери, что ты хочешь сделать.', reply_markup=main_menu_markup)
+
+
+bot.polling(none_stop=True)
