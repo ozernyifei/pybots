@@ -4,11 +4,12 @@ import datetime
 # создаем объект бота
 bot = telebot.TeleBot('6168613359:AAGBE0EBuTHcA57OSK3Y3VOVQBzsdZ0Mh6s')
 
-# первое меню с двумя кнопками
-main_menu_markup = telebot.types.ReplyKeyboardMarkup(row_width=2)
+# первое меню с тремя кнопками
+main_menu_markup = telebot.types.ReplyKeyboardMarkup(row_width=1)
 hello_button = telebot.types.KeyboardButton('Приветствие')
 weekday_button = telebot.types.KeyboardButton('День недели')
-main_menu_markup.add(hello_button, weekday_button)
+when_button = telebot.types.KeyboardButton('Когда?')
+main_menu_markup.add(hello_button, weekday_button, when_button)
 
 # второе меню с тремя кнопками и кнопкой "назад"
 second_menu_markup = telebot.types.ReplyKeyboardMarkup(row_width=1)
@@ -33,6 +34,11 @@ def hello_message(message):
 def weekday_message(message):
     weekday = datetime.datetime.today().strftime('%A')
     bot.send_message(message.chat.id, f'Сегодня {weekday}.', reply_markup=main_menu_markup)
+
+# обработчик кнопки "когда?"
+@bot.message_handler(func=lambda message: message.text == 'Когда?')
+def when_message(message):
+    bot.send_message(message.chat.id, 'Что когда?', reply_markup=second_menu_markup)
 
 # обработчик кнопки "девопс"
 @bot.message_handler(func=lambda message: message.text == 'Девопс')
