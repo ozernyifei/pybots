@@ -12,7 +12,7 @@ when_button = telebot.types.KeyboardButton('Когда?')
 main_menu_markup.add(hello_button, weekday_button, when_button)
 
 # второе меню с тремя кнопками и кнопкой "назад"
-second_menu_markup = telebot.types.ReplyKeyboardMarkup(row_width=1)
+second_menu_markup = telebot.types.ReplyKeyboardMarkup(resize_keyboard=True)
 devops_button = telebot.types.KeyboardButton('Девопс')
 album_button = telebot.types.KeyboardButton('Альбом')
 drink_button = telebot.types.KeyboardButton('Пить')
