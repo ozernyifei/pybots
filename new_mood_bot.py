@@ -30,7 +30,7 @@ def start_handler(message):
     cursor.execute("SELECT id FROM users WHERE id=?", user_id)
     row = cursor.fetchone()
 
-    if not row:keyboard
+    if not row:
         # Добавляем пользователя в базу данных
         cursor.execute("INSERT INTO users (id, username) VALUES (?, ?)", user_id, username)
         cnxn.commit()
@@ -46,7 +46,6 @@ mood_keyboard = types.ReplyKeyboardMarkup(row_width=3)
 good_button = types.KeyboardButton(text="Good")
 okay_button = types.KeyboardButton(text="Okay")
 bad_button = types.KeyboardButton(text="Bad")
-back_button = types.KeyboardButton(text="Back")
 mood_keyboard.add(good_button, okay_button, bad_button)
 
 # Отправляем сообщение с кнопками пользователю
