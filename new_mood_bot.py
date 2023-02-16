@@ -30,23 +30,24 @@ def start_handler(message):
     cursor.execute("SELECT id FROM users WHERE id=?", user_id)
     row = cursor.fetchone()
 
-    if not row:
+    if not row:keyboard
         # Добавляем пользователя в базу данных
         cursor.execute("INSERT INTO users (id, username) VALUES (?, ?)", user_id, username)
         cnxn.commit()
 
-        bot.reply_to(message, "Привет! Я буду записывать твои настроения. Используй кнопки, чтобы отправить свое текущее настроение.", reply_markup=keyboard)
+        bot.reply_to(message, "Привет! Я буду записывать твои настроения. Используй кнопки, чтобы отправить свое текущее настроение.", reply_markup=mood_keyboard)
 
     else:
-        bot.reply_to(message, "С возвращением! Используй кнопки, чтобы отправить свое текущее настроение.", reply_markup=keyboard)
+        bot.reply_to(message, "С возвращением! Используй кнопки, чтобы отправить свое текущее настроение.", reply_markup=mood_keyboard)
 
 
-# Define inline keyboard
-keyboard = types.ReplyKeyboardMarkup(row_width=3)
+# Define inline mood_keyboard
+mood_keyboard = types.ReplyKeyboardMarkup(row_width=3)
 good_button = types.KeyboardButton(text="Good")
 okay_button = types.KeyboardButton(text="Okay")
 bad_button = types.KeyboardButton(text="Bad")
-keyboard.add(good_button, okay_button, bad_button)
+back_button = types.KeyboardButton(text="Back")
+mood_keyboard.add(good_button, okay_button, bad_button)
 
 # Отправляем сообщение с кнопками пользователю
 
@@ -68,7 +69,7 @@ keyboard.add(good_button, okay_button, bad_button)
 #             mood = 'bad'
 #         add_mood_to_db(user_id, mood)
 #         bot.answer_callback_query(callback_query_id=call.id, text=f"Your {mood} mood has been saved!")
-@bot.message_handler(func=lambda message: message.text in ['Good', 'Ok', 'Bad'])
+@bot.message_handler(func=lambda message: message.text in ['Good', 'Okay', 'Bad'])
 def handle_query(message):
     user_id = message.chat.id
 
