@@ -42,7 +42,7 @@ def start_handler(message):
 
 
 # Define inline mood_keyboard
-mood_keyboard = types.ReplyKeyboardMarkup(row_width=3)
+mood_keyboard = types.ReplyKeyboardMarkup(resize_keyboard= True)
 good_button = types.KeyboardButton(text="Good")
 okay_button = types.KeyboardButton(text="Okay")
 bad_button = types.KeyboardButton(text="Bad")
@@ -136,13 +136,6 @@ def get_mood_data(user_id):
 
 
     return mood_data
-
-
-    
-
-        
-
-
 
 
 # Запуск бота
