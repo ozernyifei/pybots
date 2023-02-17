@@ -49,6 +49,10 @@ start_keyboard.add(share_mood_button, send_weekly_report_button)
 @bot.message_handler(func=lambda message: message.text == 'Share my mood')
 def handle_share_button(message):
     bot.reply_to(message, "Отправь своё текущее настроение из трех возможных вариантов: ", reply_markup= mood_keyboard)
+    
+@bot.message_handler(func=lambda message: message.text == 'Weekly report')
+def handle_weekly_report(message):
+    bot.reply_to(message, "Пока что я не могу отправить еженедельный отчёт! Ходят слухи, что в этом виноват ленивый разработчик... На данный момент, можешь начать отправлять мне своё настроение!", reply_markup= start_keyboard)
 
 # Определяем клавиатуру с настроениеями
 mood_keyboard = types.ReplyKeyboardMarkup(resize_keyboard= True)
