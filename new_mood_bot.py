@@ -20,6 +20,7 @@ cursor = cnxn.cursor()
 # Создание бота
 bot = telebot.TeleBot('6290464531:AAHyfuLMg5eMZMe348O8TxkVXQ7vhEdE1vA')
 
+# Обработка команды /start
 @bot.message_handler(commands=['start'])
 def start_handler(message):
     chat_id = message.chat.id
@@ -38,10 +39,18 @@ def start_handler(message):
         bot.reply_to(message, "Привет! Я буду записывать твои настроения. Используй кнопки, чтобы отправить свое текущее настроение.", reply_markup=mood_keyboard)
 
     else:
-        bot.reply_to(message, "С возвращением! Используй кнопки, чтобы отправить свое текущее настроение.", reply_markup=mood_keyboard)
+        bot.reply_to(message, "С возвращением! Используй кнопки, чтобы отправить свое текущее настроение.", reply_markup=start_keyboard)
+# Определяем стартовую клавиатуру
+start_keyboard = types.ReplyKeyboardMarkup(resize_keyboard= True)
+share_mood_button = types.KeyboardButton(text="Share my mood")
+send_weekly_report_button = types.KeyboardButton(text="Weekly report")
+start_keyboard.add(share_mood_button, send_weekly_report_button)
 
+@bot.message_handler(func=lambda message: message.text == 'Share my mood')
+def handle_share_button(message):
+    bot.reply_to(message, "Отправь своё текущее настроение из трех возможных вариантов: ", reply_markup= mood_keyboard)
 
-# Define inline mood_keyboard
+# Определяем клавиатуру с настроениеями
 mood_keyboard = types.ReplyKeyboardMarkup(resize_keyboard= True)
 good_button = types.KeyboardButton(text="Good")
 okay_button = types.KeyboardButton(text="Okay")
@@ -49,25 +58,7 @@ bad_button = types.KeyboardButton(text="Bad")
 mood_keyboard.add(good_button, okay_button, bad_button)
 
 # Отправляем сообщение с кнопками пользователю
-
-
-# # Define callback query handler
-# @bot.callback_query_handler(func=lambda call: True)
-# def handle_query(call):
-#     user_id = call.message.chat.id
-#     today = datetime.datetime.now().date()
-#     last_mood_time = get_last_mood_time(user_id)
-#     if last_mood_time and last_mood_time.date() == today:
-#         bot.answer_callback_query(callback_query_id=call.id, text="You have already submitted your mood today!")
-#     else:
-#         if call.data == 'good':
-#             mood = 'good'
-#         elif call.data == 'okay':
-#             mood = 'okay'
-#         elif call.data == 'bad':
-#             mood = 'bad'
-#         add_mood_to_db(user_id, mood)
-#         bot.answer_callback_query(callback_query_id=call.id, text=f"Your {mood} mood has been saved!")
+# Отвечаем на настроение юзера
 @bot.message_handler(func=lambda message: message.text in ['Good', 'Okay', 'Bad'])
 def handle_query(message):
     user_id = message.chat.id
@@ -78,14 +69,14 @@ def handle_query(message):
 
     # Если пользователь пытается добавить настроение раньше, чем через 24 часа, выдаем сообщение
     if last_mood_time and datetime.datetime.now() - last_mood_time < datetime.timedelta(days=1):
-        bot.send_message(user_id, "Вы уже добавляли настроение сегодня. Попробуйте еще раз завтра!")
+        bot.send_message(user_id, "Вы уже добавляли настроение сегодня. Попробуйте еще раз завтра!",reply_markup=start_keyboard)
         return
 
     # Добавляем настроение пользователя в базу данных
     add_mood_to_db(user_id, message.text)
 
     # Отправляем сообщение об успешном добавлении настроения
-    bot.send_message(user_id, "Ваше настроение успешно добавлено!")
+    bot.send_message(user_id, "Ваше настроение успешно добавлено!", reply_markup=start_keyboard)
 
 # Define message handler
 @bot.message_handler(commands=['mood'])
@@ -95,7 +86,7 @@ def send_mood(message):
     if not last_mood_time:
         bot.send_message(user_id, "You haven't submitted your mood yet.")
     else:
-        mood_data = get_mood_data(user_id, last_mood_time)
+        mood_data = get_mood_data(user_id)
         if not mood_data:
             bot.send_message(user_id, "You haven't submitted your mood yet.")
         else:
@@ -127,7 +118,7 @@ def get_mood_data(user_id):
     # Получаем данные о настроении пользователя за последние 7 дней
     end_date = datetime.datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
     start_date = end_date - datetime.timedelta(days=7)
-    cursor.execute(f"SELECT CAST(date AS date), mood FROM mood WHERE user_id = ? AND date >= ? AND date <= ?", (user_id, start_date, end_date))
+    cursor.execute(f"SELECT CAST(time AS date), mood FROM mood WHERE user_id = ? AND time >= ? AND time <= ?", (user_id, start_date, end_date))
     rows = cursor.fetchall()
 
     mood_data = []
