@@ -39,7 +39,34 @@ def start_handler(message):
         bot.reply_to(message, "Привет! Я буду записывать твои настроения. Используй кнопки, чтобы отправить свое текущее настроение.", reply_markup=mood_keyboard)
 
     else:
-        bot.reply_to(message, "С возвращением! Используй кнопки, чтобы отправить свое текущее настроение.", reply_markup=start_keyboard)
+        if username == "LxgMaster" or username == "l_d_wish":
+            bot.send_message(user_id, "Привёт, объёбыш ёбаный", reply_markup=start_keyboard_for_lgm)
+        else:
+            bot.reply_to(message, "С возвращением! Используй кнопки, чтобы отправить свое текущее настроение.", reply_markup=start_keyboard)
+
+# Клавиатура для логмастера
+start_keyboard_for_lgm = types.ReplyKeyboardMarkup(row_width= 3)
+high_button = types.KeyboardButton(text= "Я объебался")
+send_weekly_report_button = types.KeyboardButton(text="Weekly report")
+start_keyboard_for_lgm.add(high_button, send_weekly_report_button)
+@bot.message_handler(func=lambda message: message.text == 'Я объебался')
+def ok_got_it(message):
+    user_id = message.chat.id
+
+
+    # Получаем время последнего добавления настроения пользователя
+    last_mood_time = get_last_mood_time(user_id)
+
+    # Если пользователь пытается добавить настроение раньше, чем через 24 часа, выдаем сообщение
+    if last_mood_time and datetime.datetime.now() - last_mood_time < datetime.timedelta(days=1):
+        bot.send_message(user_id, "Сколько можно за один день объёбыаться?",reply_markup=start_keyboard_for_lgm)
+        return
+
+    add_mood_to_db(user_id, message.text)
+    
+    bot.send_message(user_id, "Охуенно, бро", start_keyboard_for_lgm)
+
+
 # Определяем стартовую клавиатуру
 start_keyboard = types.ReplyKeyboardMarkup(resize_keyboard= True)
 share_mood_button = types.KeyboardButton(text="Share my mood")
@@ -49,10 +76,10 @@ start_keyboard.add(share_mood_button, send_weekly_report_button)
 @bot.message_handler(func=lambda message: message.text == 'Share my mood')
 def handle_share_button(message):
     bot.reply_to(message, "Отправь своё текущее настроение из трех возможных вариантов: ", reply_markup= mood_keyboard)
-    
-@bot.message_handler(func=lambda message: message.text == 'Weekly report')
-def handle_weekly_report(message):
-    bot.reply_to(message, "Пока что я не могу отправить еженедельный отчёт! Ходят слухи, что в этом виноват ленивый разработчик... На данный момент, можешь начать отправлять мне своё настроение!", reply_markup= start_keyboard)
+
+# @bot.message_handler(func=lambda message: message.text == 'Weekly report')
+# def handle_weekly_report(message):
+#     bot.reply_to(message, "Пока что я не могу отправить еженедельный отчёт :c \nХодят слухи, что в этом виноват ленивый разработчик... На данный момент, можешь начать отправлять мне своё настроение!", reply_markup= start_keyboard)
 
 # Определяем клавиатуру с настроениеями
 mood_keyboard = types.ReplyKeyboardMarkup(resize_keyboard= True)
@@ -82,21 +109,22 @@ def handle_query(message):
     # Отправляем сообщение об успешном добавлении настроения
     bot.send_message(user_id, "Ваше настроение успешно добавлено!", reply_markup=start_keyboard)
 
-# Define message handler
-@bot.message_handler(commands=['mood'])
+
+@bot.message_handler(func=lambda message: message.text == 'Weekly report')
 def send_mood(message):
     user_id = message.chat.id
     last_mood_time = get_last_mood_time(user_id)
+
     if not last_mood_time:
-        bot.send_message(user_id, "You haven't submitted your mood yet.")
+        bot.send_message(user_id, "Ты ещё не делился своим настроением!")
     else:
         mood_data = get_mood_data(user_id)
         if not mood_data:
-            bot.send_message(user_id, "You haven't submitted your mood yet.")
+            bot.send_message(user_id, "На этой неделе ты не делился со мной своим настроением.")
         else:
-            mood_list = [f"{data[0]}: {data[1]}" for data in mood_data]
+            mood_list = [f"{data['date']}: {data['mood']}" for data in mood_data]
             mood_history = '\n'.join(mood_list)
-            bot.send_message(user_id, f"Your mood history for the past 7 days:\n{mood_history}")
+            bot.send_message(user_id, f"История твоего настроения за семь дней:\n{mood_history}")
 
 # Add mood data to SQL database
 def add_mood_to_db(user_id, mood):
@@ -113,11 +141,6 @@ def get_last_mood_time(user_id):
 
 # Get mood data for the past 7 days
 def get_mood_data(user_id):
-    conn = pyodbc.connect('Driver={SQL Server};'
-                          'Server=your_server_name;'
-                          'Database=your_database_name;'
-                          'Trusted_Connection=yes;')
-    cursor = conn.cursor()
 
     # Получаем данные о настроении пользователя за последние 7 дней
     end_date = datetime.datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
