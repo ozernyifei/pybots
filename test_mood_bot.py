@@ -1,6 +1,8 @@
 import pyodbc
 import telebot
 import datetime
+import time 
+import schedule
 from telebot import types
 
 
@@ -40,6 +42,34 @@ def start_handler(message):
         bot.reply_to(message, "С возвращением! Используй кнопки, чтобы отправить свое текущее настроение.", reply_markup=start_keyboard)
 
 
+# определяем метод для отправки сообщения
+def send_notification(user_id, text):
+    try:
+        # получаем последнее время отправки настроения пользователем
+        cursor.execute("SELECT TOP 1 time FROM mood WHERE user_id = ? ORDER BY time DESC", user_id)
+        row = cursor.fetchone()
+        if row:
+            last_mood_time = row[0]
+            current_time = datetime.datetime.now()
+            # если прошло более 24 часов, то отправляем сообщение
+            if (current_time - last_mood_time).total_seconds() > 24 * 60 * 60:
+                bot.send_message(user_id, text)
+        else:
+            bot.send_message(user_id, text)
+    except Exception as e:
+        print(f"Error while sending notification to user {user_id}: {e}")
+
+# определяем метод для отправки уведомлений всем пользователям
+def send_notifications_to_all_users(text):
+    try:
+        # получаем список всех пользователей из базы данных
+        cursor.execute("SELECT user_id FROM users")
+        rows = cursor.fetchall()
+        for row in rows:
+            user_id = row[0]
+            send_notification(user_id, text)
+    except Exception as e:
+        print(f"Error while sending notifications to all users: {e}")
 
 
 # Определяем стартовую клавиатуру
@@ -126,5 +156,21 @@ def get_mood_data(user_id):
 
 # Запуск бота
 bot.polling(none_stop= True)
+# Функция для отправки сообщения об активации бота
+def send_bot_status_message():
+    send_notifications_to_all_users("Я снова работаю!")
+
+# Задаем время первой отправки сообщения, когда бот запускается
+send_bot_status_message()
+
+# Задаем расписание для отправки сообщения каждые 24 часа
+schedule.every(24).hours.do(send_bot_status_message)
+
+# Запускаем бесконечный цикл проверки расписания
+while True:
+    schedule.run_pending()
+    time.sleep(1)
+
+
 
 

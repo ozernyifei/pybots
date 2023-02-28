@@ -44,27 +44,7 @@ def start_handler(message):
         else:
             bot.reply_to(message, "С возвращением! Используй кнопки, чтобы отправить свое текущее настроение.", reply_markup=start_keyboard)
 
-# Клавиатура для логмастера
-start_keyboard_for_lgm = types.ReplyKeyboardMarkup(row_width= 3)
-high_button = types.KeyboardButton(text= "Я объебался")
-send_weekly_report_button = types.KeyboardButton(text="Weekly report")
-start_keyboard_for_lgm.add(high_button, send_weekly_report_button)
-@bot.message_handler(func=lambda message: message.text == 'Я объебался')
-def ok_got_it(message):
-    user_id = message.chat.id
 
-
-    # Получаем время последнего добавления настроения пользователя
-    last_mood_time = get_last_mood_time(user_id)
-
-    # Если пользователь пытается добавить настроение раньше, чем через 24 часа, выдаем сообщение
-    if last_mood_time and datetime.datetime.now() - last_mood_time < datetime.timedelta(days=1):
-        bot.send_message(user_id, "Сколько можно за один день объёбыаться?",reply_markup=start_keyboard_for_lgm)
-        return
-
-    add_mood_to_db(user_id, message.text)
-    
-    bot.send_message(user_id, "Охуенно, бро", start_keyboard_for_lgm)
 
 
 # Определяем стартовую клавиатуру
@@ -88,7 +68,22 @@ okay_button = types.KeyboardButton(text="Okay")
 bad_button = types.KeyboardButton(text="Bad")
 mood_keyboard.add(good_button, okay_button, bad_button)
 
-# Отправляем сообщение с кнопками пользователю
+@bot.message_handler(func=lambda message: message.text == 'Я объебался')
+def ok_got_it(message):
+    user_id = message.chat.id
+
+
+    # Получаем время последнего добавления настроения пользователя
+    last_mood_time = get_last_mood_time(user_id)
+
+    # Если пользователь пытается добавить настроение раньше, чем через 24 часа, выдаем сообщение
+    if last_mood_time and datetime.datetime.now() - last_mood_time < datetime.timedelta(days=1):
+        bot.send_message(user_id, "Сколько можно за один день объёбыаться?",reply_markup=start_keyboard_for_lgm)
+        return
+
+    add_mood_to_db(user_id, message.text)
+    
+    bot.send_message(user_id, "Охуенно, бро", reply_markup=start_keyboard_for_lgm)
 # Отвечаем на настроение юзера
 @bot.message_handler(func=lambda message: message.text in ['Good', 'Okay', 'Bad'])
 def handle_query(message):
@@ -108,6 +103,7 @@ def handle_query(message):
 
     # Отправляем сообщение об успешном добавлении настроения
     bot.send_message(user_id, "Ваше настроение успешно добавлено!", reply_markup=start_keyboard)
+
 
 
 @bot.message_handler(func=lambda message: message.text == 'Weekly report')
@@ -158,3 +154,12 @@ def get_mood_data(user_id):
 
 # Запуск бота
 bot.polling(none_stop= True)
+
+
+
+# Клавиатура для логмастера
+start_keyboard_for_lgm = types.ReplyKeyboardMarkup(row_width= 3)
+high_button = types.KeyboardButton(text= "Я объебался")
+send_weekly_report_button = types.KeyboardButton(text="Weekly report")
+start_keyboard_for_lgm.add(high_button, send_weekly_report_button)
+
