@@ -1,24 +1,25 @@
 import pyodbc
 import telebot
 import datetime
+import bot_data as bd
 from telebot import types
 
 
-server_name = 'localhost'  # Имя вашего сервера
-database_name = 'MoodBotDB'  # Название вашей базы данных
-username = 'botbotname'  # Ваше имя пользователя для доступа к базе данных
-password = 'password'  # Ваш пароль для доступа к базе данных
+# server_name = 'TOADLES-PC\SQLEXPRESS'  # Имя вашего сервера
+# database_name = 'MoodBotDB'  # Название вашей базы данных
+# username = 'botbotname'  # Ваше имя пользователя для доступа к базе данных
+# password = 'botbotname'  # Ваш пароль для доступа к базе данных
 
-# Строка подключения
-connection_string = f'DRIVER={{ODBC Driver 17 for SQL Server}};SERVER={server_name};DATABASE={database_name};UID={username};PWD={password}'
+# # Строка подключения
+# connection_string = f'DRIVER={{ODBC Driver 17 for SQL Server}};SERVER={server_name};DATABASE={database_name};UID={username};PWD={password}'
 
 # Создаем соединение
-cnxn = pyodbc.connect(connection_string)
+cnxn = pyodbc.connect(bd.connection_string)
 
 cursor = cnxn.cursor()
 
 # Создание бота
-bot = telebot.TeleBot('6290464531:AAHyfuLMg5eMZMe348O8TxkVXQ7vhEdE1vA')
+bot = telebot.TeleBot(bd.bot_id)
 
 # Обработка команды /start
 @bot.message_handler(commands=['start'])
