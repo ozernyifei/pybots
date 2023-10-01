@@ -1,7 +1,4 @@
-<<<<<<< HEAD
-bot_data.py
 
-=======
 # Editors
 .vscode/
 .idea/
@@ -105,8 +102,8 @@ celerybeat-schedule
 *.sage.py
 
 # Environments
-.env
-.venv
+*.env
+*.venv
 env/
 venv/
 ENV/
@@ -127,4 +124,4 @@ venv.bak/
 .mypy_cache/
 .dmypy.json
 dmypy.json
->>>>>>> develop
+
