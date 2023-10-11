@@ -125,3 +125,9 @@ venv.bak/
 .dmypy.json
 dmypy.json
 
+# Dockerfile
+Dockerfile
+docker-compose.yml
+
+# Shell scripts
+*.sh 
